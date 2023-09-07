@@ -1,0 +1,22 @@
+<launch>
+    <arg name="control_interface" default="position"/>
+    <arg name="params_yaml_file"  default="$(find iiwa_interactive_controller)/config/passiveDS_impedance_params.yaml" />
+
+    <include file="$(find iiwa_driver)/launch/iiwa_bringup.launch">
+        <arg name="model" value="14" />
+    </include>
+
+    <node name="iiwa_interactive_bringup" pkg="iiwa_interactive_controller" type="iiwa_interactive_controller_bringup" output="screen" cwd="node" />
+
+
+    <include file="$(find natnet_ros_cpp)/launch/natnet_ros.launch">
+    </include>
+    
+    <include file="$(find ezgripper_driver)/launch/action_server.launch">
+    </include>
+    
+    <node name="pose_tracking" pkg="iiwa_interactive_controller" type="pose_tracking.py" output="screen" respawn="true"/>
+
+    <param name="control_interface"   value="$(arg control_interface)"/>
+    <rosparam file="$(arg params_yaml_file)" command="load"/>
+</launch>

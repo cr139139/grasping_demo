@@ -1,0 +1,24 @@
+<launch>
+    
+    <arg name="params_yaml_file"  default="$(find iiwa_interactive_controller)/config/passiveDS_impedance_params.yaml" />
+
+    <include file="$(find iiwa_driver)/launch/iiwa_bringup.launch">
+        <arg name="model" value="14" />
+    </include>
+
+    <include file="$(find arm_admittance_controller)/launch/kuka_admittance_controller.launch">
+    </include>
+
+
+    <node name="rq_sensor_custom" pkg="robotiq_force_torque_sensor_custom" type="rq_sensor_custom" />
+    <node name="rq_stream_sensor_custom" pkg="robotiq_force_torque_sensor_custom" type="rq_stream_sensor_custom" />
+
+    <node name="iiwa_interactive_bringup" pkg="iiwa_interactive_controller" type="iiwa_interactive_controller_bringup" output="screen" cwd="node" />
+    <node pkg="tf" type="static_transform_publisher" name="force_sensor_tf_pub" args="0 0 0.0375 0 0 0.707 0.707 iiwa_link_ee robotiq_force_torque_frame_id 100" />
+    <!-- <group if="$(eval target_mode == 'position')"> -->
+    <!-- <node name="iiwa_interactive_position_interface" pkg="iiwa_interactive_controller" type="iiwa_interactive_controller_position_interface" output="screen" cwd="node" /> -->
+    <!-- </group> -->
+
+    <param name="control_interface"   value="twist"/>
+    <rosparam file="$(arg params_yaml_file)" command="load"/>
+</launch>
